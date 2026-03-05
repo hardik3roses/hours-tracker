@@ -1,201 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Work Hours Calculator</title>
-    <style>
-      body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f4f6f8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      }
-      .card {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-      width: 320px;
-      }
-      h2 {
-      margin-top: 0;
-      margin-bottom: 20px;
-      font-size: 20px;
-      text-align: center;
-      }
-      label {
-      font-size: 14px;
-      display: block;
-      margin-top: 12px;
-      margin-bottom: 4px;
-      }
-      input {
-      width: 100%;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-      font-size: 14px;
-      }
-      button {
-      width: 100%;
-      margin-top: 20px;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #111827;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-      }
-      button:hover {
-      opacity: 0.9;
-      }
-      .result {
-      margin-top: 18px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 16px;
-      }
-      .work-tool-card {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 260px;
-      padding: 18px;
-      background: #ffffff;
-      border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      z-index: 9999;
-      }
-      .work-tool-card h3 {
-      margin: 0 0 6px 0;
-      font-size: 16px;
-      }
-      .work-tool-card p {
-      margin: 0 0 12px 0;
-      font-size: 13px;
-      color: #555;
-      }
-      .work-tool-card button {
-      width: 100%;
-      padding: 9px;
-      border: none;
-      border-radius: 8px;
-      background: #111827;
-      color: white;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.2s ease;
-      }
-      .work-tool-card button:hover {
-      transform: translateY(-1px);
-      opacity: 0.95;
-      }
-      .toast {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #16a34a;
-      display: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <h2>8-Hour Work Calculator</h2>
-      <label>Start Time</label>
-      <input type="time" id="start" step="1" value="09:41:00">
-      <label>Pause Time</label>
-      <input type="time" id="pause" step="1" value="13:26:00">
-      <label>Resume Time</label>
-      <input type="time" id="resume" step="1" value="14:08:00">
-      <button onclick="calculateEndTime()">Calculate End Time</button>
-      <div class="result" id="result"></div>
-    </div>
-    <div class="work-tool-card">
-      <h3>Work Hours Tool</h3>
-      <p>Copy the calculator script to run in console.</p>
-      <button id="copyScriptBtn">Copy Calculator Script</button>
-      <div id="toast" class="toast">Script copied successfully ✅</div>
-    </div>
-    <script>
-      function parseTime(timeStr) {
-          const [hours, minutes, seconds] = timeStr.split(":").map(Number);
-          const date = new Date();
-          date.setHours(hours, minutes, seconds || 0, 0);
-          return date;
-      }
-      
-      function calculateEndTime() {
-          const startValue = document.getElementById("start").value;
-          const pauseValue = document.getElementById("pause").value;
-          const resumeValue = document.getElementById("resume").value;
-      
-          if (!startValue || !pauseValue || !resumeValue) {
-              document.getElementById("result").innerText = "Please fill all fields.";
-              return;
-          }
-      
-          const start = parseTime(startValue);
-          const pause = parseTime(pauseValue);
-          const resume = parseTime(resumeValue);
-      
-          const breakDurationMs = resume - pause;
-          const requiredWorkMs = 8 * 60 * 60 * 1000;
-      
-          const endTime = new Date(start.getTime() + requiredWorkMs + breakDurationMs);
-      
-          const formatted = endTime.toTimeString().split(" ")[0];
-          document.getElementById("result").innerText = "You should leave at: " + formatted;
-          document.getElementById("copyScriptBtn").addEventListener("click", function () {
-              const scriptToCopy = `
-      function calculateFromTable() {
-          const table = document.getElementById("notification_tbl");
-          const rows = table.querySelectorAll("tbody tr");
-      
-          if (rows.length < 3) {
-              alert("Not enough rows to calculate.");
-              return;
-          }
-      
-          const row1 = rows[0].querySelectorAll("td")[3].innerText.trim();
-          const row2 = rows[1].querySelectorAll("td")[3].innerText.trim();
-          const row3 = rows[2].querySelectorAll("td")[3].innerText.trim();
-      
-          function parseDateTime(dateTimeStr) {
-              const [datePart, timePart] = dateTimeStr.split(" ");
-              const [day, month, year] = datePart.split("/");
-              const [hour, minute, second] = timePart.split(":");
-              return new Date(year, month - 1, day, hour, minute, second);
-          }
-      
-          const resume = parseDateTime(row1);
-          const pause = parseDateTime(row2);
-          const start = parseDateTime(row3);
-      
-          const breakDuration = resume - pause;
-          const eightHours = 8 * 60 * 60 * 1000;
-          const endTime = new Date(start.getTime() + eightHours + breakDuration);
-      
-          console.log("You should leave at:", endTime.toLocaleString());
-      }
-      
-      calculateFromTable();
-      `;
-      
-      navigator.clipboard.writeText(scriptToCopy).then(() => {
-          const toast = document.getElementById("toast");
-          toast.style.display = "block";
-          setTimeout(() => {
-              toast.style.display = "none";
-          }, 2000);
-      });
-      
-      }
-    </script>
-  </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Work Hours Calculator</title>
+
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f4f6f8;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        width: 320px;
+    }
+
+    h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 20px;
+        text-align: center;
+    }
+
+    label {
+        font-size: 14px;
+        display: block;
+        margin-top: 12px;
+        margin-bottom: 4px;
+    }
+
+    input {
+        width: 100%;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 20px;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background: #111827;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        opacity: 0.9;
+    }
+
+    .result {
+        margin-top: 18px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 16px;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h2>8-Hour Work Calculator</h2>
+
+    <label>Start Time</label>
+    <input type="time" id="start" step="1" value="09:41:00">
+
+    <label>Pause Time</label>
+    <input type="time" id="pause" step="1" value="13:26:00">
+
+    <label>Resume Time</label>
+    <input type="time" id="resume" step="1" value="14:08:00">
+
+    <button onclick="calculateEndTime()">Calculate End Time</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+function parseTime(timeStr) {
+    const [hours, minutes, seconds] = timeStr.split(":").map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, seconds || 0, 0);
+    return date;
+}
+
+function calculateEndTime() {
+    const startValue = document.getElementById("start").value;
+    const pauseValue = document.getElementById("pause").value;
+    const resumeValue = document.getElementById("resume").value;
+
+    if (!startValue || !pauseValue || !resumeValue) {
+        document.getElementById("result").innerText = "Please fill all fields.";
+        return;
+    }
+
+    const start = parseTime(startValue);
+    const pause = parseTime(pauseValue);
+    const resume = parseTime(resumeValue);
+
+    const breakDurationMs = resume - pause;
+    const requiredWorkMs = 8 * 60 * 60 * 1000;
+
+    const endTime = new Date(start.getTime() + requiredWorkMs + breakDurationMs);
+
+    const formatted = endTime.toTimeString().split(" ")[0];
+    document.getElementById("result").innerText = "You should leave at: " + formatted;
+}
+</script>
+
+</body>
 </html>
